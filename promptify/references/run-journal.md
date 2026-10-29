@@ -1,7 +1,18 @@
-# fable-promptify — run journal
+# promptify: run journal
 
-Dated entry per run: task shape, interview rounds, what the user revised in the final prompt, health counts. Evidence trail for retrospectives — not read at run start.
+Dated entry per run: task shape, interview rounds, what the user revised in the final prompt, health counts. Evidence trail for retrospectives, not read at run start. From October 2026 the public copy carries skill-improvement entries only; later runs stay in the author's private copy.
 
+## 2026-10-29: depth pass, deeper not bigger (skill improvement)
+
+- Trigger: the author saw an Anthropic engineer use a meta-prompt asking for "a deeper version of this task, not a bigger one" (the professional's move, the rawest material, methods and tools, a verifier other than the model or the user) and asked for it in promptify.
+- Backtest on the private run journal [inference]: about a third of recorded user revisions were depth moves the first draft missed (tests for everything, a live availability probe before drafting, the cheapest experiment per research direction).
+- Change: Phase 2 "Depth pass" for non-quick shapes, with a deeper-not-bigger test; Phase 3 asks about it once the aim is crystal; Phase 4 writes accepted moves in as sources, methods and the outside verifier; three common mistakes; guide section "Depth, not bulk"; checklist item 10; `tests/depth-pass.md`.
+- RED/GREEN under a blind judge: the old skill failed on raw sources, methods and verifier; the new one passed all six criteria. A follow-up found the depth pass took an aim question's slot, so it now waits for the aim; an aim-only blind A/B then showed no regression (better on one prompt, level on the other).
+
+## 2026-10-19: renamed to promptify, rescoped to the Claude 5 family (skill improvement)
+
+- `fable-promptify` became `promptify`, targeting Opus 5.5 by default with Fable 5.1 as the escalation; the old name stays as an alias. The guide was re-distilled from Anthropic's per-model prompting pages (Opus 5.5, Opus 5, Fable 5.1, Fable 5, Sonnet 5.5, Haiku 5.5, effort).
+- New: target model and effort in Phase 1, the multi-lane routing table, no verify-again lines on Opus, no reasoning-extraction requests. Test `tests/multi-lane-routing.md` added.
 ## 2026-07-07 — skill improvement: /goal integration + loops taxonomy (not a promptify run)
 
 - **Trigger**: operator asked to integrate `/goal` properly (4,000-char argument cap) and fold in "Designing Loops for Claude Code Agents" (@delba_oliveira, July 2026).
