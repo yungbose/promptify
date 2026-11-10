@@ -1,6 +1,6 @@
 # Claude 5 family prompting guide (session and handover prompts)
 
-Distilled 19 Oct 2026 from Anthropic's prompting pages (sources at the end; re-check when a model ships). Default target **Opus 5.5**; escalation **Fable 5.1** (appendix); delegated lanes follow your routing policy ("ROUTING.md" below means the author's, `~/.claude/skills/_shared/ROUTING.md`; without one, use the lane table in SKILL.md Phase 4). A technique measured on one model should be re-checked before use on another ([umbrella]). Opus 5.5 inherits the Opus 5 page ([opus-5-5]); a rule marked *inferred* comes from that page and is not restated for 5.5.
+Distilled 19 Oct 2026 from Anthropic's prompting pages (sources at the end; re-check when a model ships). The Fable appendix was redistilled on 9 Nov 2026 for Fable 5.2. Default target **Opus 5.5**; **Fable 5.2** for long unattended or complex runs (appendix); delegated lanes follow your routing policy ("ROUTING.md" below means the author's, `~/.claude/skills/_shared/ROUTING.md`; without one, use the lane table in SKILL.md Phase 4). A technique measured on one model should be re-checked before use on another ([umbrella]). Opus 5.5 inherits the Opus 5 page ([opus-5-5]); a rule marked *inferred* comes from that page and is not restated for 5.5.
 
 Opus does best with the complete specification up front and then left to run ([opus-5]), and 5.5 sustains long autonomous work better than Opus 5 ([news]). The leverage is direction, not supervision: a crystal aim, a check the model can run, the why behind each constraint, an explicit scope.
 
@@ -9,7 +9,7 @@ Opus does best with the complete specification up front and then left to run ([o
 | Model | Default effort | Watch for |
 |---|---|---|
 | Opus 5.5 | `medium`; the account runs `high` | text-only end of turn after a progress update; scope growth; over-verification when told to verify; long replies |
-| Fable 5.1 | `high` | under-narration; serial tool calls in coding loops; unrequested fixes (appendix) |
+| Fable 5.2 | `high` API, `medium` Claude Code | early stops at `low`/`medium`; silent stretches in long turns; cautions in notes and memory followed to the letter; adds to existing code rather than restructuring unless told the code is its own (appendix) |
 | Sonnet 5.5 | `high` API, `medium` Claude Code; the account runs `high` | checks in, or reports done unchecked, at `low`/`medium`; own review rounds at `xhigh`/`max` |
 | Haiku 5.5 | `medium` | skipped searches and checks, early stops at `low`; over-triggers on "always search" |
 
@@ -67,7 +67,7 @@ Effort is the main control for how much Opus 5.5 thinks; thinking is always on (
 
 ## Style rules for the drafted prompt
 - Calm prose, no blanket CAPS, MUST or CRITICAL: current models over-trigger on it ([umbrella]). One emphasised line is fine after an observed miss on that line ([cc-best]). Specific beats loud.
-- Positive instructions for Opus ("Write flowing prose paragraphs", not "No markdown") ([umbrella]); for Fable 5.1 drop anti-formatting rules altogether.
+- Positive instructions for Opus ("Write flowing prose paragraphs", not "No markdown") ([umbrella]); for Fable 5.2 drop hard style rules it no longer needs (it follows them closely enough to make prose choppy).
 - XML tags only when instructions mix with pasted data, documents or examples; long documents first, instructions last; 3 to 5 diverse `<example>` blocks when format matters ([umbrella]).
 - Ask for "a short explanation of the answer" or "a summary of the actions taken". Never ask the model to write out its reasoning or thinking in the response: such prompts may be declined as `reasoning_extraction`, and the fallback does not retry them ([opus-5-5]).
 - Narration cadence: "Before your first tool call, say in one sentence what you're about to do. When you finish, lead with the outcome." ([opus-5]) A report for someone who did not watch drops working shorthand ([fable-5]).
@@ -132,23 +132,29 @@ Token budget: deterministic criteria and turn caps stop the loop early and corre
 ## Anti-patterns (audit every draft for these)
 Blanket emphasis; blanket tool nudges ("if in doubt, use X", "always search": Haiku then searched on half the prompts that needed none ([haiku-5-5]); the explore-broadly sentence for connector work is the deliberate exception); bare constraints; suggestion language; hand-written reasoning plans; "show your reasoning", "write out your thinking" or "think step by step in your response"; "double-check" or "verify with a subagent" lines on Opus; token-budget lines; blanket one-lane-at-a-time or serial-only rules; test-gaming incentives; boilerplate the task shape does not need.
 
-## Appendix: Fable 5.1 (escalation)
+## Appendix: Fable 5.2 (long or complex runs)
 
-Escalate when Opus 5.5 at `xhigh` or `max` has demonstrably fallen short, or on "plan with fable" for open-ended cross-domain planning (ROUTING.md). Default effort `high`; `medium` roughly matches Fable 5 for less ([fable-5-1]). Differences from Opus:
-- Start at the top of the difficulty range; Fable rewards ambitious asks ([fable-5]).
-- Narration runs the other way: it writes fewer updates, so remove lines that suppress them ("hold all findings for the final response") ([fable-5-1]).
-- Coding loops: "First privately list what you need next; then request every item that doesn't depend on another's result in this one response." ([fable-5-1])
-- Scope: keep changes and tests to what the task asks; a pre-existing bug found on the way is reported as a follow-up, not fixed in this change ([fable-5-1]).
-- Its "You are operating autonomously. The user is not watching in real time..." block also makes it less likely to ask about ambiguity, so settle ambiguity in the interview ([fable-5-1]).
-- Explicit self-verification is right here: in long runs a fresh-context verifier subagent outperforms self-critique ([fable-5]).
-- Memory: one lesson per file, verified failures distilled into general rules, wrong notes deleted ([fable-5]). If a context count must show, add "You have ample context remaining" ([fable-5]).
-- The lead keeps working while subagents run; targeted edits, not whole-file rewrites; no anti-formatting rules (it under-formats already); at `xhigh`/`max` long outputs may be drafted in thinking first ([fable-5-1]).
+Use it for a long unattended run or a complex, open-ended task, and as the step up when Opus 5.5 at `high` or `xhigh` has fallen short. All rules here are from [fable-5-2] unless marked.
+
+- **Effort.** Start at `high`: most of the gain is already there. `medium` suits interactive work, `xhigh` only where a gain has been measured, `max` for measuring the ceiling. At `high` and above it thinks before almost every reply, so it is slow for quick back-and-forth. A line such as "answer directly without deliberating" does not work at `medium` and above: remove it and lower the effort. Effort barely changes reply length, so set length in the prompt.
+- **Finish the whole task.** It sometimes ends a turn with work still doable: a list of what remains, an offer to continue, or a stop at an ordinary obstacle. This is more common at `low` and `medium`. For an unattended run, carry the page's "# Finishing work" block, keeping its distinction between ordinary obstacles (diagnose and work through) and deliberate blockers (leave alone and report). Measured cost: about 30% more output tokens. Keep a confirmation step for risky or irreversible actions, because the model asks less often with it.
+- **Approvals.** It applies approval rules as written. Name the exact actions that need approval and the routine steps that need none (for example, retries of calls that are safe to repeat). Approve with the action named ("Yes, run the migration on the staging database"), not a bare "continue".
+- **Ownership.** With no word on ownership it adds to the existing structure and reports nearby problems instead of fixing them. To have it restructure as it works, add: "This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it." Measured cost: about 1.5 times the output tokens, changes nobody asked for, and small changes missing from its closing summary, so review the diff. Leave the sentence out where minimal change is wanted. A scope rule elsewhere in the prompt does not cancel it.
+- **Updates.** It writes little during long runs of tool calls. For a watched session add: "Before you start, say in a line what you're about to do; brief updates while you work help the user follow along. Close with a short recap that stands on its own (what you found, what you did, and what's next), so a reader who only sees the last message has the full picture." For an unattended run the gaps matter less.
+- **Subagents.** It delegates readily where prompts invite it, and at `xhigh`/`max` it starts subagents to review its own work. Early testers had good results with it as planner and orchestrator for other models. Give every lane a model and an effort in the routing table, and say when a lane is worth its cost.
+- **Caution piles up.** It follows cautions in memory, notes, instruction files and reviewer messages closely, so stale ones make it hold routine work or ask for approvals it does not need. Before the run, remove cautions whose reason no longer holds. Write the exception into the rule itself ("get a go-ahead first", not "never" plus a separate permission line). A general "act more freely" line changes nothing.
+- **Lines to remove.** Token budgets written into the prompt; the "treat that answer as done" sentences from [opus-5-5] wherever it should keep re-examining its earlier answers; hard style rules ("20 words or fewer").
+- **Final report.** Its readers have not seen the tool calls. For a handover or final report, carry the page's "# Communicating clearly" block: self-contained, key points first, plain words, no terms coined during the work.
+- **Refusals.** A request to write its reasoning into the response can be declined as reasoning extraction. Ask for a short explanation or a summary of actions.
+- **Prompt changes land in new sessions.** Preserved thinking binds its reasoning to the system prompt, tools and history before it. Claude Code manages this itself; a hand-built harness must keep the history append-only.
+- *Carried over from the Fable 5 and 5.1 pages, not restated for 5.2, so re-check before relying on them:* start at the top of the difficulty range ([fable-5]); a fresh-context verifier subagent outperforms self-critique in long runs ([fable-5]); a pre-existing bug found on the way is reported as a follow-up, not fixed in this change ([fable-5-1]); the lead keeps working while subagents run ([fable-5-1]).
 
 ## Sources (fetched 19 Oct 2026)
 
 [umbrella]: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices
 [opus-5-5]: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5
 [opus-5]: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5
+[fable-5-2]: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2 "fetched 9 Nov 2026"
 [fable-5-1]: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1
 [fable-5]: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5
 [sonnet55]: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering "Prompting Claude Sonnet 5.5 (linked from this index)"

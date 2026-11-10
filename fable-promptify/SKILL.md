@@ -1,6 +1,6 @@
 ---
 name: fable-promptify
-description: Legacy alias of the promptify skill (renamed 19 Oct 2026). Use promptify for turning a rough prompt, task idea or half-formed goal into the best possible prompt for a Claude 5 session (Opus 5.5 by default, Fable 5.1 on escalation). Triggers on "/fable-promptify <prompt>", "make this a fable prompt", or any request the promptify skill covers.
+description: Legacy alias of the promptify skill (renamed 19 Oct 2026). Use promptify for turning a rough prompt, task idea or half-formed goal into the best possible prompt for a Claude 5 session (Opus 5.5 by default, Fable 5.2 for long or complex runs). Triggers on "/fable-promptify <prompt>", "make this a fable prompt", or any request the promptify skill covers.
 ---
 
 # fable-promptify (legacy alias)
