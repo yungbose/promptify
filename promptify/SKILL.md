@@ -1,6 +1,6 @@
 ---
 name: promptify
-description: Use when the user has a rough prompt, task idea, or half-formed goal they want turned into the best possible prompt or handover for a Claude 5 session, with Opus 5.5 as the default target and Fable 5.1 as the escalation. Triggers on "/promptify <prompt>", "/fable-promptify <prompt>" (legacy name), "promptify this", "make this a fable prompt", "make this an opus prompt", "optimise this prompt", or pasting a rough prompt and asking for it to be improved before starting a session. NOT for executing the task itself; the deliverable is the refined prompt.
+description: Use when the user has a rough prompt, task idea, or half-formed goal they want turned into the best possible prompt or handover for a Claude 5 session, with Opus 5.5 as the default target and Fable 5.2 for long unattended or complex runs. Triggers on "/promptify <prompt>", "/fable-promptify <prompt>" (legacy name), "promptify this", "make this a fable prompt", "make this an opus prompt", "optimise this prompt", or pasting a rough prompt and asking for it to be improved before starting a session. NOT for executing the task itself; the deliverable is the refined prompt.
 ---
 
 # promptify
@@ -11,7 +11,7 @@ Renamed from `fable-promptify` on 19 Oct 2026 and rescoped from Fable 5 to the w
 
 Claude 5 models run for hours, test their own work and correct themselves, so the leverage sits in the prompt. A prompt earns that autonomy when it has four things: a crystal **aim**, **verification** the model can run without you, **context** behind every constraint (not bare rules), and explicit **scope**.
 
-**Target model.** Opus 5.5 is the default: it is the orchestrator and judge, and Anthropic puts it at roughly Fable 5.1's level on most work, faster and cheaper. Fable 5.1 is the escalation, used when Opus 5.5 at `xhigh` or `max` has demonstrably fallen short, or when the operator says "plan with fable" for open-ended cross-domain planning. Lanes a handover delegates (Sonnet 5.5, Haiku 5.5, a coding-agent lane such as Codex) follow your routing policy. In the author's setup that is `~/.claude/skills/_shared/ROUTING.md`; without one, the lane table in Phase 4 is the default.
+**Target model.** Opus 5.5 is the default: it is the orchestrator and judge, and it keeps UI and taste work. Fable 5.2 is the target for a long unattended run or a complex, open-ended task (a long build from a plan, a major migration, cross-domain planning, deep research carried through to a finished document), and the step up when Opus 5.5 at `high` or `xhigh` has fallen short or the operator says "plan with fable". Lanes a handover delegates (Sonnet 5.5, Haiku 5.5, a coding-agent lane such as Codex) follow your routing policy. In the author's setup that is `~/.claude/skills/_shared/ROUTING.md`; without one, the lane table in Phase 4 is the default.
 
 This skill converts a rough prompt into that shape by interviewing the user until the aim is crystal, then drafting a structured prompt. It is the "ask Claude to interview me before writing the final spec" pattern, made repeatable.
 
@@ -37,7 +37,7 @@ The skill never starts executing the task mid-flow. The deliverable is the promp
    - **Research / analysis**: success criteria, source verification, structured notes
    - **Writing / creative**: voice, audience, format examples
 4. Note whether the task is **goal-suited**: it has deterministic exit criteria that Claude's own output can demonstrate (tests pass, a score clears a threshold, a queue empties, a build exits 0). Goal-suited tasks get a `/goal` companion in Phase 4 and a delivery pattern in Phase 5. Taste-judged outcomes (design quality, prose voice) are not goal-suited, because a small evaluator model cannot judge them; the orchestrator's review handles those.
-5. Pick the **target model and effort**: Opus 5.5 at `high` by default (`xhigh` for financial or regulated work and long runs with large budgets); Fable 5.1 at `high` only on the escalation conditions above. A prompt cannot set effort, so the delivery advice states it.
+5. Pick the **target model and effort**: Opus 5.5 at `high` by default (`xhigh` for financial or regulated work); Fable 5.2 at `high` for the long or complex runs above (`xhigh` only where a gain has been measured on that kind of work). A prompt cannot set effort, so the delivery advice states it.
 
 ## Phase 2: Reflect
 
@@ -74,7 +74,7 @@ Rules:
 - Offer concrete options with a recommendation, not open-ended essay questions.
 - When the user gives a bare constraint, ask for the why behind it. The model generalises from the motivation, not the bare rule.
 - When the user does not know what they want yet, act as a thought partner: propose 2 or 3 directions and let them pick, rather than forcing an answer they don't have.
-- Surface ambition explicitly at least once: "Is the minimal version the goal, or should the prompt ask for more, and if so which extras?" Opus 5.5 tends to grow scope on its own, so ambition lands as named extras in the aim, not as a blanket "go beyond the basics". On a Fable 5.1 escalation, start at the top of the difficulty range.
+- Surface ambition explicitly at least once: "Is the minimal version the goal, or should the prompt ask for more, and if so which extras?" Opus 5.5 tends to grow scope on its own, so ambition lands as named extras in the aim, not as a blanket "go beyond the basics". On a Fable 5.2 run, start at the top of the difficulty range.
 - Do not ask whether lanes should run one at a time. Parallelism follows ROUTING.md; a serial run is only ever the operator's own unprompted request.
 
 **Exit test (the only exit condition):** could a colleague with zero context execute from your current understanding without asking a single question? If no, run another round. If yes, stop interviewing; do not pad with extra rounds.
@@ -134,7 +134,7 @@ For goal-suited tasks, draft a second artifact alongside the prompt: the `/goal`
    - **Quick verifiable task → goal-only.** One `/goal` invocation carries the task, end state + check, and turn cap. Setting a goal starts a turn, so no separate prompt is needed.
    - **Feature build / long-horizon → spec file + compact goal (the default).** Save the compiled prompt as a handover or plan file; the goal opens with "Implement the spec in `<file>` fully" and then the completion contract. One paste, and every turn, including the first, is goal-evaluated.
    - **Already mid-session → prompt-then-goal.** Paste the compiled prompt, then set the compact goal once work is underway. In a fresh session the spec-file pattern is better: one paste and no unevaluated first turn.
-3. Below it, when relevant, 2 to 4 lines of session setup advice: the target model and effort (Opus 5.5 at `high` by default; say when `xhigh` or a Fable 5.1 escalation is warranted and why; changing effort mid-session costs the prompt cache); the loop primitive (turn-based, `/goal`, `/loop` or `/schedule`); a checklist or state file for multi-context-window work; and the orchestrator's independent review after the run. Skip entirely for quick tasks.
+3. Below it, when relevant, 2 to 4 lines of session setup advice: the target model and effort (Opus 5.5 at `high` by default; say when `xhigh` or a Fable 5.2 session is warranted and why, and that the lead model is picked before the run and kept, because a switch from Fable down to Opus drops Fable's reasoning; changing effort mid-session costs the prompt cache); the loop primitive (turn-based, `/goal`, `/loop` or `/schedule`); a checklist or state file for multi-context-window work; and the orchestrator's independent review after the run. Skip entirely for quick tasks.
 4. Ask: run it in this session now, or take it to a fresh session on the target model? (A fresh session is better when this conversation has accumulated unrelated context.)
 5. Append a run-journal entry to `references/run-journal.md`: task shape, target model, rounds of interview, what the user revised in the final prompt (if anything).
 

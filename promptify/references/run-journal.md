@@ -2,6 +2,13 @@
 
 Dated entry per run: task shape, interview rounds, what the user revised in the final prompt, health counts. Evidence trail for retrospectives, not read at run start. From October 2026 the public copy carries skill-improvement entries only; later runs stay in the author's private copy.
 
+## 2026-11-09: retargeted from Fable 5.1 to Fable 5.2 (skill improvement)
+
+- Trigger: Anthropic released Fable 5.2 with its own prompting page and model-selection guidance.
+- Change: Opus 5.5 stays the default target. Fable 5.2 is now the target for a long unattended run or a complex, open-ended task, and the step up when Opus 5.5 falls short. It was "Fable 5.1, escalation only".
+- The guide's Fable appendix was redistilled from the Prompting Claude Fable 5.2 page: effort, finishing the whole task, approvals, code ownership, progress updates, subagents, caution that builds up, lines to remove, and the final report. Rules carried over from the Fable 5 and 5.1 pages are marked as not restated for 5.2.
+- Not re-tested: the pressure tests were last run against the Opus 5.5 default and have not been re-run with a Fable 5.2 target.
+
 ## 2026-10-29: depth pass, deeper not bigger (skill improvement)
 
 - Trigger: the author saw an Anthropic engineer use a meta-prompt asking for "a deeper version of this task, not a bigger one" (the professional's move, the rawest material, methods and tools, a verifier other than the model or the user) and asked for it in promptify.
